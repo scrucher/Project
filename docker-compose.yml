@@ -1,0 +1,47 @@
+version: "3"
+services:
+    database:
+      image: mongo:4.4.10 
+      restart: always
+      container_name: database
+      ports:
+        - "27019:27019"
+      environment:
+        MONGO_INITDB_DATABASE: pdb
+      volumes:
+        - database:/data/db
+      networks: 
+        - pt-network
+    backend:
+        container_name: backend
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        image: server
+        depends_on: 
+            - database
+        ports:
+            - "5555:5555"
+        volumes:
+            - ./backend:/app
+        networks: 
+        - pt-network
+    frontend:
+      container_name: ma-app
+      build:
+        context: ./ma-app
+        dockerfile: Dockerfile
+      image: vue
+      ports:
+        - "8888:8888"
+      volumes:
+        - ./ma-app:/app
+      networks:
+        - pt-network 
+        
+volumes: 
+    database:
+
+networks: 
+  pt-network:
+    driver: bridge
